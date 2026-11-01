@@ -25,6 +25,12 @@ public class App {
     private final JSlider alignment = new JSlider();
     private final JSlider piller = new JSlider();
 
+    private final ScheduledExecutorService simLoop = Executors.newSingleThreadScheduledExecutor(task -> {
+        Thread thread = new Thread(task, "sim-loop");
+        thread.setDaemon(true);
+        return thread;
+    });
+
     //RGB Color of background
     private final Color bgColor = new Color(100,100,255);
 
@@ -106,9 +112,13 @@ public class App {
                     }
                 }
             );
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+           simLoop.scheduleAtFixedRate(() -> {
+            try {
                 world.update();
                 flockPanel.repaint();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
             }, 0, 16, TimeUnit.MILLISECONDS);
     }
     //for testing purposess will be moved later
