@@ -4,6 +4,9 @@ import java.util.stream.Collectors;
 
 public final class BirdBehaviour {
     
+    public static double separationWeight = 1.5;
+    public static double alignmentWeight  = 0.05;
+
     private static Collector<Bird, double[], double[]> repulsionFrom(Bird self) {
     return Collector.of(
             () -> new double[2],
@@ -23,7 +26,7 @@ public final class BirdBehaviour {
         public /*Maybe make vector class*/ void  calculate(Bird self, World world) {
             List<Bird> neighbors = world.getEntitiesInRange(world.getBirds(), self, 25.0);
             double[] force = neighbors.stream().collect(repulsionFrom(self));
-            self.applyForce(force[0] * 1.5, force[1] * 1.5);
+            self.applyForce(force[0] * separationWeight, force[1] * separationWeight);
         }
     }
 
@@ -38,7 +41,7 @@ public final class BirdBehaviour {
                 Collectors.averagingDouble(Bird::getVelocityY),
                 (avgDx, avgDy) -> new double[]{avgDx, avgDy}));
 
-            self.applyForce((avg[0] - self.getVelocityX()) * 0.05, (avg[1] - self.getVelocityY()) * 0.05);
+            self.applyForce((avg[0] - self.getVelocityX()) * alignmentWeight, (avg[1] - self.getVelocityY()) * alignmentWeight);
         }
     }
 
