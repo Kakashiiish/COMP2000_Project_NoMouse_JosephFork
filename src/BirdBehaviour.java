@@ -5,7 +5,8 @@ import java.util.stream.Collectors;
 public final class BirdBehaviour {
     
     public static double separationWeight = 1.5;
-    public static double alignmentWeight  = 0.05;
+    public static double alignmentWeight = 0.05;
+    public static double cohesionWeight = 0.01;
 
     private static Collector<Bird, double[], double[]> repulsionFrom(Bird self) {
     return Collector.of(
@@ -56,7 +57,7 @@ public final class BirdBehaviour {
                 Collectors.averagingDouble(Bird::getY),
                 (centerX, centerY) -> new double[]{centerX, centerY}));
 
-            self.applyForce((center[0] - self.getX()) * 0.01, (center[1] - self.getY()) * 0.01);
+            self.applyForce((center[0] - self.getX()) * cohesionWeight, (center[1] - self.getY()) * cohesionWeight);
         }
     } 
 }

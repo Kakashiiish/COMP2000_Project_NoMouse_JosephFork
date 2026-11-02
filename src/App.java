@@ -23,7 +23,7 @@ public class App {
 
     private final JSlider separation = new JSlider();
     private final JSlider alignment = new JSlider();
-    private final JSlider piller = new JSlider();
+    private final JSlider cohesion = new JSlider();
 
 
     //creates a slider with the corect labels
@@ -104,8 +104,8 @@ public class App {
 
             sliderPanel.setLayout(new GridLayout(3, 1, 5, 5));   // one row per slider
             sliderPanel.add(labelledSlider("Separation", separation, 0, 20, 15));
-            sliderPanel.add(labelledSlider("Alignment",  alignment,  0, 10, 5));
-            sliderPanel.add(labelledSlider("Pillar",     piller,     0, 100, 50));
+            sliderPanel.add(labelledSlider("Alignment", alignment, 0, 10, 5));
+            sliderPanel.add(labelledSlider("Cohesion", cohesion, 0, 10, 1));
             //sliderPanel.add(separation);
             //separation.bounds();
             //sliderPanel.add(alignment);
@@ -114,6 +114,7 @@ public class App {
             
             separation.addChangeListener(e -> BirdBehaviour.separationWeight = separation.getValue() / 10.0);
             alignment.addChangeListener(e  -> BirdBehaviour.alignmentWeight  = alignment.getValue() / 100.0);
+            cohesion.addChangeListener(e  -> BirdBehaviour.cohesionWeight  = cohesion.getValue() / 100.0);
 
             frame.addComponentListener(new ComponentAdapter() {
                 @Override 
