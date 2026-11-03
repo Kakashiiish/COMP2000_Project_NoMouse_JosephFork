@@ -1,11 +1,34 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.function.Function;
+import java.util.stream.DoubleStream;
 
 /** Rectangular pillar; x and y identify its centre, like other entities. */
 public class PillarObstacle extends Obstacle {
 
     private double width;
     private double height;
+
+
+    private final Function<double [], double[]> avoidanceStrategy = values -> { // strategy for avoiding pillar obstacles
+        double[] surface = surface(values[0], values[1], 0);
+        double margin = values[2];
+        double maxForce = values[3];
+
+        if ( margin <= 0 || surface[2] >= margin)
+        {
+            return new double[] {0,0};
+        }
+
+        double strength = Math.min(1, (margin - surface[2]) / margin) * maxForce;
+
+        // A small tangential component prevents a head-on approach from stalling.
+        return new double[] 
+        {
+        (surface[0] - surface[1] * 0.4) * strength,
+        (surface[1] + surface[0] * 0.4) * strength
+        };
+    };
 
     public PillarObstacle(double left, double top, double width, double height) {
         super(left + width / 2, top + height / 2, Math.max(width, height) / 2,
@@ -14,9 +37,8 @@ public class PillarObstacle extends Obstacle {
     }
 
     public void setBounds(double left, double top, double width, double height) {
-        if (!Double.isFinite(left) || !Double.isFinite(top)
-                || !Double.isFinite(width) || !Double.isFinite(height)
-                || width <= 0 || height <= 0) 
+        if (!DoubleStream.of(left, top, width, height)
+            .allMatch(Double :: isFinite) || width <= 0 || height <= 0)
         {
             throw new IllegalArgumentException("Pillar bounds must be finite and dimensions positive");
         }
@@ -59,13 +81,7 @@ public class PillarObstacle extends Obstacle {
 
     @Override
     public double[] computeAvoidanceForce(double px, double py, double margin, double maxForce) {
-        double[] surface = surface(px, py, 0);
-
-        if (margin <= 0 || surface[2] >= margin) return new double[] {0, 0};
-        double strength = Math.min(1, (margin - surface[2]) / margin) * maxForce;
-        // A small tangential component prevents a head-on approach from stalling.
-        return new double[] {(surface[0] - surface[1] * 0.4) * strength,
-                (surface[1] + surface[0] * 0.4) * strength};
+        return avoidanceStrategy.apply(new double[] {px, py, margin, maxForce});
     }
 
     /** Keep an entity's body outside the pillar, including after resize or spawn. */
