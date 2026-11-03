@@ -1,7 +1,8 @@
 import java.util.ArrayList;
 import java.util.List;
 public class World {
-    public final double width, height;
+    public double width;
+    public double height;
     private final int MAX_BIRDS = 500;
     private final List<Bird> birds = new ArrayList<>();
     private final List<Obstacle> obstacles = new ArrayList<>();
@@ -101,6 +102,9 @@ public class World {
     public int getPredatorCount(List<Predator> list){
         return list.size();
     }    
-
+    public void changeBounds(double width, double height){
+        this.width = width;
+        this.height = height;
+    }
 
 } 
