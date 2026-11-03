@@ -3,15 +3,6 @@ import java.awt.event.*;
 import java.util.concurrent.*;
 import javax.swing.*;
 
-/*
-NOTES:
-    fix up sliders
-    add lables to sliders
-    add uses to sliders
-    create piller visule
-    make pretty if time
- */
-
 public class App {
     private final World world = new World(600, 600);
     private final FlockPanel flockPanel = new FlockPanel(world);
@@ -106,11 +97,6 @@ public class App {
             sliderPanel.add(labelledSlider("Separation", separation, 0, 20, 15));
             sliderPanel.add(labelledSlider("Alignment", alignment, 0, 10, 5));
             sliderPanel.add(labelledSlider("Cohesion", cohesion, 0, 10, 1));
-            //sliderPanel.add(separation);
-            //separation.bounds();
-            //sliderPanel.add(alignment);
-            //sliderPanel.add(piller);
-            //sliderPanel.setLayout(new GridLayout(3, 1, 5, 5));
             
             separation.addChangeListener(e -> BirdBehaviour.separationWeight = separation.getValue() / 10.0);
             alignment.addChangeListener(e  -> BirdBehaviour.alignmentWeight  = alignment.getValue() / 100.0);
