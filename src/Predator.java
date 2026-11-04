@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 import java.awt.Graphics2D;
 import java.util.List;
 import java.util.Comparator;
+import java.util.stream.Stream;
 
 public abstract class Predator extends MovingEntity {
 
@@ -72,10 +73,8 @@ public abstract class Predator extends MovingEntity {
 
     private void moveTowards(Bird bird, List<Obstacle> obstacles) {
         double distance = Math.max(0.001, distanceTo(bird));
-        double[] avoidance = obstacles.stream()
-                .map(obstacle -> obstacle.computeAvoidanceForce(x, y, size + 60, 4))
-                .reduce(new double[] {0, 0}, (sum, force) ->
-                        new double[] {sum[0] + force[0], sum[1] + force[1]});
+        double[] avoidance = collectAvoidanceForces(obstacles.stream()
+                .map(obstacle -> obstacle.computeAvoidanceForce(x, y, size + 60, 4)));
         double desiredHeading = Math.atan2((bird.getY() - y) / distance + avoidance[1],
                 (bird.getX() - x) / distance + avoidance[0]);
         if (!hasHeading) {
@@ -90,6 +89,17 @@ public abstract class Predator extends MovingEntity {
         }
         dx = Math.cos(heading) * speed;
         dy = Math.sin(heading) * speed;
+    }
+
+    /** Each stream partition owns its accumulator; source force vectors stay unchanged.
+     * Keep live obstacle reads sequential under the world lock. Parallel callers
+     * must supply detached force values, just as analytics uses position snapshots.
+     */
+    static double[] collectAvoidanceForces(Stream<double[]> forces) {
+        return forces.collect(
+                () -> new double[2],
+                (sum, force) -> { sum[0] += force[0]; sum[1] += force[1]; },
+                (left, right) -> { left[0] += right[0]; left[1] += right[1]; });
     }
 
     public double getHeading() {
