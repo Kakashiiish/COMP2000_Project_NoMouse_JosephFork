@@ -4,14 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-// ---------------------------------------------------------------
-// Things to be potentially added to the Obstacle class:
-// - A method to "pulsate" the obstacle's size over time, making it grow and shrink in a pattern.
-// - A method to change the color of the obstacle based on its age eg. from green to red while it is "dying" or it could just slowly fade away.
-// - Including patterns from the lectures and see how they can be implemented in the Obstacle class.
-// - Integrate into the visuals so that the simulation is seen and further implementations or fixes can be made.
-// ---------------------------------------------------------------
-
 public class Obstacle extends Entity {
 
     private static Random RNG = new Random();

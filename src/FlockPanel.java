@@ -27,8 +27,10 @@ public class FlockPanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
 
-        renderEntities(g2d, world.getBirds());
-        renderEntities(g2d, world.getObstacles());
-        renderEntities(g2d, world.getPredators());
+        synchronized (world) {
+            renderEntities(g2d, world.getBirds());
+            renderEntities(g2d, world.getObstacles());
+            renderEntities(g2d, world.getPredators());
+        }
     }
 }

@@ -1,13 +1,15 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.List;
 
 public class Bird extends MovingEntity {
     private double mass = 1.0;
-    private double size = 16.0;
+    private double size = 8.0;
 
-    private static final BirdBehaviour.Separation separation = new BirdBehaviour.Separation();
-    private static final BirdBehaviour.Alignment alignment = new BirdBehaviour.Alignment();
-    private static final BirdBehaviour.Cohesion cohesion = new BirdBehaviour.Cohesion();
+   private static final List<Behaviour<Bird>> Behaviours = List.of(
+            new BirdBehaviour.Separation(),
+            new BirdBehaviour.Alignment(),
+            new BirdBehaviour.Cohesion());
 
     public Bird (double x, double y) {
         super(x, y);
@@ -25,11 +27,11 @@ public class Bird extends MovingEntity {
 
     //@Override
     //needs bird list param
-    public void update(World world) {
-        separation.calculate(this, world);
-        alignment.calculate(this, world);
-        cohesion.calculate(this, world);
-        
+    public void computeForces(World world) {
+        Behaviours.forEach(behaviour -> behaviour.calculate(this, world));
+    }
+
+    public void integrate(World world) {
         updatePosition();
         avoidWalls(world.width, world.height);
     }

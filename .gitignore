@@ -1,1 +1,6 @@
 *.class
+bin/
+out/
+.vscode/
+.java-build.json
+.DS_Store
