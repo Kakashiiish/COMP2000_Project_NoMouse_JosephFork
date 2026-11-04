@@ -43,6 +43,13 @@ public class App {
         return thread;
     });
 
+    // Keep analytics off both the simulation scheduler and Swing's event thread.
+    private final ScheduledExecutorService analyticsLoop = Executors.newSingleThreadScheduledExecutor(task -> {
+        Thread thread = new Thread(task, "predator-analytics");
+        thread.setDaemon(true);
+        return thread;
+    });
+
     //RGB Color of background
     private final Color bgColor = new Color(100,100,255);
 
@@ -125,6 +132,8 @@ public class App {
                     @Override 
                     public void
                     windowClosing(WindowEvent we) {
+                        analyticsLoop.shutdownNow();
+                        simLoop.shutdownNow();
                         System.exit(0);
                     }
                 }
@@ -137,6 +146,23 @@ public class App {
                 ex.printStackTrace();
             }
             }, 0, 16, TimeUnit.MILLISECONDS);
+            analyticsLoop.scheduleWithFixedDelay(() -> {
+                try {
+                    PredatorAnalytics.Snapshot snapshot = world.snapshotForAnalytics();
+                    // No world lock is held while ForkJoinPool workers analyse the copies.
+                    java.util.Map<PredatorAnalytics.Zone, Long> counts =
+                            PredatorAnalytics.analyseParallel(snapshot);
+                    SwingUtilities.invokeLater(() -> {
+                        if (frame.isDisplayable()) {
+                            frame.setTitle("Flock Simulation | DANGER: " + counts.get(PredatorAnalytics.Zone.DANGER)
+                                    + " | WARNING: " + counts.get(PredatorAnalytics.Zone.WARNING)
+                                    + " | SAFE: " + counts.get(PredatorAnalytics.Zone.SAFE));
+                        }
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }, 0, 1, TimeUnit.SECONDS);
     }
     //for testing purposess will be moved later
     public static void main(String[] args) {

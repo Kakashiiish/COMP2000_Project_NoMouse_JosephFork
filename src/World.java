@@ -21,7 +21,7 @@ public class World {
     }
 
 
-    public void addBird(Bird bird) throws CapacityExceededException {
+    public synchronized void addBird(Bird bird) throws CapacityExceededException {
         if (birds.size() >= MAX_BIRDS) {
             throw new CapacityExceededException("World capacity reached. Cannot exceed " + MAX_BIRDS + " birds.");
         }
@@ -37,7 +37,7 @@ public class World {
         obstacles.add(obstacle);
     }
 
-    public void addPredator(Predator predator){
+    public synchronized void addPredator(Predator predator){
         if (predator == null) {
             throw new IllegalArgumentException("Cannot add a null Predator to the world.");
         }
@@ -60,6 +60,19 @@ public class World {
             resolvePillarCollisions(bird, 4);
         });
     }
+    /** Copy one consistent frame while update() is excluded by this same monitor.
+     * Parallel analytics must run after this method returns, outside the lock.
+     */
+    public synchronized PredatorAnalytics.Snapshot snapshotForAnalytics() {
+        List<PredatorAnalytics.Position> birdPositions = new ArrayList<>();
+        List<PredatorAnalytics.Position> predatorPositions = new ArrayList<>();
+        birds.forEach(bird -> birdPositions.add(
+                new PredatorAnalytics.Position(bird.getX(), bird.getY())));
+        predators.forEach(predator -> predatorPositions.add(
+                new PredatorAnalytics.Position(predator.getX(), predator.getY())));
+        return new PredatorAnalytics.Snapshot(birdPositions, predatorPositions);
+    }
+
     private void resolvePillarCollisions(MovingEntity entity, double padding) {
         obstacles.stream()
                 .filter(obstacle -> obstacle instanceof PillarObstacle)
