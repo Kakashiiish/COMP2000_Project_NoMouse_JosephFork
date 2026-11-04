@@ -7,8 +7,6 @@ import java.util.Random;
 public class Obstacle extends Entity {
 
     private static Random RNG = new Random();
-    private double x;
-    private double y;
     private double radius;
     private long spawnTimeMillis;
     private long lifespanMillis;
@@ -90,10 +88,9 @@ public class Obstacle extends Entity {
         return false;
     }
 
-// ---------------------------------------------------------------
+    // ---------------------------------------------------------------
     // Boid avoidance
     // ---------------------------------------------------------------
- 
     /**
      * Calculates the avoidance force that a boid should apply to avoid this obstacle. The force is stronger the closer the boid is to the obstacle, and it is zero if the boid is outside the avoidance zone.
      * 
