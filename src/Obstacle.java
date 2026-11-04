@@ -82,10 +82,8 @@ public class Obstacle extends Entity {
     }
 
     public boolean overlapsAny(List<? extends Obstacle> others) {
-        for (Obstacle o : others) {
-            if (this.overlaps(o)) return true;
-        }
-        return false;
+        // Short-circuit as soon as an overlapping obstacle is found.
+        return others.stream().anyMatch(this::overlaps);
     }
 
     // ---------------------------------------------------------------

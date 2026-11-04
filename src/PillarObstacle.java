@@ -1,6 +1,5 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.function.Function;
 import java.util.stream.DoubleStream;
 
 /** Rectangular pillar; x and y identify its centre, like other entities. */
@@ -10,10 +9,13 @@ public class PillarObstacle extends Obstacle {
     private double height;
 
 
-    private final Function<double [], double[]> avoidanceStrategy = values -> { // strategy for avoiding pillar obstacles
-        double[] surface = surface(values[0], values[1], 0);
-        double margin = values[2];
-        double maxForce = values[3];
+    @FunctionalInterface
+    private interface AvoidanceStrategy {
+        double[] calculate(double px, double py, double margin, double maxForce);
+    }
+
+    private final AvoidanceStrategy avoidanceStrategy = (px, py, margin, maxForce) -> {
+        double[] surface = surface(px, py, 0);
 
         if ( margin <= 0 || surface[2] >= margin)
         {
@@ -81,7 +83,7 @@ public class PillarObstacle extends Obstacle {
 
     @Override
     public double[] computeAvoidanceForce(double px, double py, double margin, double maxForce) {
-        return avoidanceStrategy.apply(new double[] {px, py, margin, maxForce});
+        return avoidanceStrategy.calculate(px, py, margin, maxForce);
     }
 
     /** Keep an entity's body outside the pillar, including after resize or spawn. */
